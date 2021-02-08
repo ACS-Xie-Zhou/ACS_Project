@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="PublishConfigData" remoteFilesAllowedToDisappearOnAutoupload="false">
+    <serverData>
+      <paths name="Raspberry (77fb30e1-a7d3-4513-9bca-75556b465b6f)">
+        <serverdata>
+          <mappings>
+            <mapping local="$PROJECT_DIR$" web="/" />
+          </mappings>
+        </serverdata>
+      </paths>
+      <paths name="VirtualBox (016080fa-060e-4e31-9732-7ce277dba5a2)">
+        <serverdata>
+          <mappings>
+            <mapping deploy="/tmp/tmp.1xV8fVU2I6" local="$PROJECT_DIR$" />
+          </mappings>
+          <excludedPaths>
+            <excludedPath local="true" path="$PROJECT_DIR$/cmake-build-debug" />
+          </excludedPaths>
+        </serverdata>
+      </paths>
+      <paths name="VirtualBox (cc8b08b3-1c0a-4e37-adcb-e094fd4b0c30)">
+        <serverdata>
+          <mappings>
+            <mapping deploy="/tmp/tmp.Y3zb6RRS9E" local="$PROJECT_DIR$" />
+          </mappings>
+          <excludedPaths>
+            <excludedPath local="true" path="$PROJECT_DIR$/cmake-build-debug" />
+          </excludedPaths>
+        </serverdata>
+      </paths>
+      <paths name="WSL (d9c5d804-31f4-4c64-80fe-2def6917792d)">
+        <serverdata>
+          <mappings>
+            <mapping local="$PROJECT_DIR$" web="/" />
+          </mappings>
+        </serverdata>
+      </paths>
+    </serverData>
+  </component>
+</project>
