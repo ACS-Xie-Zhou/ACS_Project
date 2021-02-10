@@ -1,7 +1,7 @@
 #include <iostream>
 #include <cstdlib>
-#include <immintrin.h>
 #include <ctime>
+#include <array>
 
 using namespace std;
 
@@ -47,43 +47,16 @@ public:
         } while (begin != end);
     }
 
-//    ~Matrix() {
-//        if (!_Matrix)
-//            return;
-//        float **begin = _Matrix, **end = _Matrix + _Col;
-//        do {
-//            free(*(begin++));
-//        } while (begin != end);
-//        _Row = 0;
-//        _Col = 0;
-//        free(_Matrix);
-//    }
-
     float &operator()(size_t i, size_t j) {
         return _Matrix[j][i];
     }
 
-    const float operator()(size_t i, size_t j) const {
+    float operator()(size_t i, size_t j) const {
         return _Matrix[j][i];
     }
 
-//    Matrix &operator=(Matrix &&B) {
-//        if (_Matrix) {
-//            float **begin = _Matrix, **end = _Matrix + _Row;
-//            do {
-//                free(*(begin++));
-//            } while (begin != end);
-//            free(_Matrix);
-//        }
-//        _Row = B._Row;
-//        _Col = B._Col;
-//        _Matrix = B._Matrix;
-//        B._Matrix = nullptr;
-//        return *this;
-//    }
-
-    void multi4kernel(float **c, float **a, float **b, int row, int col) {
-        register float t0(0), t1(0), t2(0), t3(0), t4(0), t5(0), t6(0), t7(0),
+    void multi_kernel(float **c, float **a, float **b, int row, int col) const {
+        float t0(0), t1(0), t2(0), t3(0), t4(0), t5(0), t6(0), t7(0),
                 t8(0), t9(0), t10(0), t11(0), t12(0), t13(0), t14(0), t15(0);
         float *a0(a[0]), *a1(a[1]), *a2(a[2]), *a3(a[3]),
                 *b0(b[col]), *b1(b[col + 1]), *b2(b[col + 2]), *b3(b[col + 3]), *end = b0 + _Row;
@@ -123,7 +96,7 @@ public:
         c[col + 3][row + 3] = t15;
     }
 
-    Matrix multi4(const Matrix &B) {
+    Matrix multiply(const Matrix &B) {
         if (_Col != B._Row) return *this;
         Matrix temp(_Row, B._Col, 0);
         float *tr[4];
@@ -141,7 +114,7 @@ public:
             } while ((++i) < _Col);
             i = 0;
             do {
-                multi4kernel(temp._Matrix, tr, B._Matrix, j, i);
+                multi_kernel(temp._Matrix, tr, B._Matrix, j, i);
                 i += 4;
             } while (i < B._Col);
             j += 4;
@@ -151,12 +124,26 @@ public:
 };
 
 int main() {
-    clock_t start = clock();
-    Matrix A(1000, 1000, 1.0);
-    Matrix B(1000, 1000, 1.0);
-    A.multi4(B);
-    clock_t end = clock();
-    double time_duration = static_cast<double>(end - start) / CLOCKS_PER_SEC;
-    std::cout << time_duration << std::endl;
+    array<int, 10> test = {1000,
+                           2000,
+                           3000,
+                           4000,
+                           5000,
+                           6000,
+                           7000,
+                           8000,
+                           9000,
+                           10000};
+    cout << "float, traditional " << test.size() << endl;
+    for (int i = 0; i < test.size(); i++) {
+        clock_t start = clock();
+        cout << test[i] << ": ";
+        Matrix A(test[i], test[i], 1);
+        Matrix B(test[i], test[i], 1);
+        A.multiply(B);
+        clock_t end = clock();
+        double time_duration = static_cast<double>(end - start) / CLOCKS_PER_SEC;
+        cout << time_duration << "s" << endl;
+    }
     std::cout << "Done" << std::endl;
 }
