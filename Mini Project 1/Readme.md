@@ -30,6 +30,8 @@ For the 2-byte fixed-point matrix multiplication, the results are shown below:
 | 9000×9000 | 10565.2 | 207.581 |
 | 10000×10000 | 15214.2 | 284.932 |
 
+![2-byte results](./short.svg)
+
 For the 4-byte floating-point matrix multiplication, the results are shown below:
 | Matrix Size | Traditional (sec) | Optimized (sec)
 | ----------- | ----------- | ----------|
@@ -44,7 +46,6 @@ For the 4-byte floating-point matrix multiplication, the results are shown below
 | 9000×9000 | 15473.2 | 208.056 |
 | 10000×10000 | 21847.8 | 284.272 |
 
+![2-byte results](./float.svg)
 
-
-
-
+From the results, we can find that when the matrix size is large (10000×10000), the optimized code executed about 50 times faster in the 2-byte fixed-point matrix and about 75 times faster in the 4-byte floating-point matrix. When the matrix size is relative small (1000×1000), the optimized code executed about 25 times faster in the 2-byte fixed-point matrix and about 45 times faster in the 4-byte floating-point matrix. Overall, the SIMD programming and cache access optimization accelerated substantially in the matrix multiplication compared to traditional approach.
