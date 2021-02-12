@@ -9,56 +9,56 @@ template <class T>
 class Matrix
 {
 private:
-    T **_Matrix;
-    size_t _Row, _Col;
+    T **MATRIX;
+    size_t ROW, COL;
 
 public:
     // The default constructor.
     Matrix()
     {
-        _Matrix = nullptr;
-        _Row = 0;
-        _Col = 0;
+        MATRIX = nullptr;
+        ROW = 0;
+        COL = 0;
     }
 
     // The constructor without initial value.
     Matrix(size_t row, size_t col)
     {
-        _Row = row;
-        _Col = col;
-        if (!_Row || !_Col)
+        ROW = row;
+        COL = col;
+        if (!ROW || !COL)
         {
             // Case when row or column is 0, invalid matrix.
             return;
         }
-        _Matrix = (T **)malloc(_Col * sizeof(T *));
-        T **begin = _Matrix;
-        T **end = _Matrix + _Col;
+        MATRIX = (T **)malloc(COL * sizeof(T *));
+        T **begin = MATRIX;
+        T **end = MATRIX + COL;
         while (begin != end)
         {
             // Allocate the memory for the matrix. No init val.
-            *(begin++) = (T *)malloc(_Row * sizeof(T));
+            *(begin++) = (T *)malloc(ROW * sizeof(T));
         }
     }
 
     // The constructor with initial value.
     Matrix(size_t row, size_t col, const T init_val)
     {
-        _Row = row;
-        _Col = col;
-        if (!_Row || !_Col)
+        ROW = row;
+        COL = col;
+        if (!ROW || !COL)
         {
             return;
         }
-        _Matrix = (T **)malloc(_Col * sizeof(T *));
-        T **begin = _Matrix;
-        T **end = _Matrix + _Col;
+        MATRIX = (T **)malloc(COL * sizeof(T *));
+        T **begin = MATRIX;
+        T **end = MATRIX + COL;
         T *p1, *p2;
 
         while (begin != end)
         {
-            p1 = *(begin++) = (T *)malloc(_Row * sizeof(T));
-            p2 = p1 + _Row;
+            p1 = *(begin++) = (T *)malloc(ROW * sizeof(T));
+            p2 = p1 + ROW;
             while (p1 != p2)
             {
                 // Assign the init_val to each entry of the matrix.
@@ -67,40 +67,45 @@ public:
         }
     }
 
+    // Operator to access the certain entry in the matrix.
     T &operator()(size_t i, size_t j)
     {
-        return _Matrix[j][i];
+        return MATRIX[j][i];
     }
 
+    // Operator to access the certain entry in the matrix.
     T operator()(size_t i, size_t j) const
     {
-        return _Matrix[j][i];
+        return MATRIX[j][i];
     }
 
+    // The function to calculate the matrix product.
     Matrix multiply(const Matrix &B)
-    {
-        if (_Col != B._Row)
+    { 
+        if (COL != B.ROW)
         {
+            // Ensure that the number of columns in the first matrix is
+            // equal to the number of rows in the second matrix.
             return *this;
         }
-        Matrix temp(_Row, B._Col, 0);
-        T i, j(0), k;
-        while (j < B._Col)
+        Matrix result(ROW, B.COL, 0); // Initialize the result matrix.
+        int i, j=0, k;
+        while (j < B.COL)
         {
             i = 0;
-            while (i < _Row)
+            while (i < ROW)
             {
                 k = 0;
-                while (k < _Col)
+                while (k < COL)
                 {
-                    temp(i, j) += (*this)(i, k) * B(k, j);
+                    result(i, j) += (*this)(i, k) * B(k, j);
                     k++;
                 }
                 i++;
             }
             j++;
         }
-        return temp;
+        return result;
     }
 };
 

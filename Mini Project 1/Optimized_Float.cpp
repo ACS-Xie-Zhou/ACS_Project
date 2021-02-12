@@ -1,3 +1,7 @@
+/*
+Note: AVX2 is required.
+*/
+
 #include <iostream>
 #include <cstdlib>
 #include <ctime>
@@ -69,86 +73,96 @@ public:
         }
     }
 
+    // Operator to access the certain entry in the matrix.
     double &operator()(size_t i, size_t j)
     {
         return MATRIX[j][i];
     }
 
+    // Operator to access the certain entry in the matrix.
     double operator()(size_t i, size_t j) const
     {
         return MATRIX[j][i];
     }
 
-    void multiply_kernel(double **c, double **a, double **b, int row, int col)
+    // SIMD matrix multiplication.
+    void multiply_kernel(double **result, double **a, double **b, int row, int col)
     {
-        __m256d t04_0, t04_1, t04_2, t04_3, t58_0, t58_1, t58_2, t58_3,
+        __m256d t0, t1, t2, t3, t4, t5, t6, t7,
             a0, a1, b0, b1, b2, b3;
-        t04_0 = t04_1 = t04_2 = t04_3 = t58_0 = t58_1 = t58_2 = t58_3 = _mm256_set1_pd(0);
-        double *pb0(b[col]), *pb1(b[col + 1]), *pb2(b[col + 2]), *pb3(b[col + 3]), *pa0(a[0]), *pa1(a[1]), *endb0 = pb0 + COL;
-        while (pb0 != endb0)
+        t0 = t1 = t2 = t3 = t4 = t5 = t6 = t7 = _mm256_set1_pd(0);
+        double *pointer0_b(b[col]), *pointer1_b(b[col + 1]),
+            *pointer2_b(b[col + 2]), *pointer3_b(b[col + 3]),
+            *pointer0_a(a[0]), *pointer1_a(a[1]), *end = pointer0_b + COL;
+        while (pointer0_b != end)
         {
-            a0 = _mm256_loadu_pd(pa0);
-            a1 = _mm256_loadu_pd(pa1);
-            b0 = _mm256_set1_pd(*(pb0++));
-            b1 = _mm256_set1_pd(*(pb1++));
-            b2 = _mm256_set1_pd(*(pb2++));
-            b3 = _mm256_set1_pd(*(pb3++));
-            t04_0 += a0 * b0;
-            t04_1 += a0 * b1;
-            t04_2 += a0 * b2;
-            t04_3 += a0 * b3;
-            t58_0 += a1 * b0;
-            t58_1 += a1 * b1;
-            t58_2 += a1 * b2;
-            t58_3 += a1 * b3;
-            pa0 += 4;
-            pa1 += 4;
+            a0 = _mm256_loadu_pd(pointer0_a);
+            a1 = _mm256_loadu_pd(pointer1_a);
+            b0 = _mm256_set1_pd(*(pointer0_b++));
+            b1 = _mm256_set1_pd(*(pointer1_b++));
+            b2 = _mm256_set1_pd(*(pointer2_b++));
+            b3 = _mm256_set1_pd(*(pointer3_b++));
+            t0 += a0 * b0;
+            t1 += a0 * b1;
+            t2 += a0 * b2;
+            t3 += a0 * b3;
+            t4 += a1 * b0;
+            t5 += a1 * b1;
+            t6 += a1 * b2;
+            t7 += a1 * b3;
+            pointer0_a += 4;
+            pointer1_a += 4;
         }
-        _mm256_storeu_pd(&c[col][row], t04_0);
-        _mm256_storeu_pd(&c[col + 1][row], t04_1);
-        _mm256_storeu_pd(&c[col + 2][row], t04_2);
-        _mm256_storeu_pd(&c[col + 3][row], t04_3);
-        _mm256_storeu_pd(&c[col][row + 4], t58_0);
-        _mm256_storeu_pd(&c[col + 1][row + 4], t58_1);
-        _mm256_storeu_pd(&c[col + 2][row + 4], t58_2);
-        _mm256_storeu_pd(&c[col + 3][row + 4], t58_3);
+        _mm256_storeu_pd(&result[col][row], t0);
+        _mm256_storeu_pd(&result[col + 1][row], t1);
+        _mm256_storeu_pd(&result[col + 2][row], t2);
+        _mm256_storeu_pd(&result[col + 3][row], t3);
+        _mm256_storeu_pd(&result[col][row + 4], t4);
+        _mm256_storeu_pd(&result[col + 1][row + 4], t5);
+        _mm256_storeu_pd(&result[col + 2][row + 4], t6);
+        _mm256_storeu_pd(&result[col + 3][row + 4], t7);
     }
-    
+
+    // Cache access optimization.
     Matrix multiply(const Matrix &B)
     {
         if (COL != B.ROW)
+        {
+            // Ensure that the number of columns in the first matrix is
+            // equal to the number of rows in the second matrix.
             return *this;
-        Matrix temp(ROW, B.COL, 0);
-        double *ta[2];
-        ta[0] = (double *)malloc(sizeof(double) * 4 * COL);
-        ta[1] = (double *)malloc(sizeof(double) * 4 * COL);
-        int i(0), j(0), k, t;
-        do
+        }
+        Matrix result(ROW, B.COL, 0); // Initialize the result matrix.
+        double *temp[2];
+        temp[0] = (double *)malloc(sizeof(double) * 4 * COL);
+        temp[1] = (double *)malloc(sizeof(double) * 4 * COL);
+        int i = 0, j = 0, k, t;
+        while (j < ROW)
         {
             k = 0;
             i = 0;
-            do
+            while (i < COL)
             {
-                ta[0][k] = MATRIX[i][j];
-                ta[1][k++] = MATRIX[i][j + 4];
-                ta[0][k] = MATRIX[i][j + 1];
-                ta[1][k++] = MATRIX[i][j + 5];
-                ta[0][k] = MATRIX[i][j + 2];
-                ta[1][k++] = MATRIX[i][j + 6];
-                ta[0][k] = MATRIX[i][j + 3];
-                ta[1][k++] = MATRIX[i++][j + 7];
-            } while (i < COL);
+                temp[0][k] = MATRIX[i][j];
+                temp[1][k++] = MATRIX[i][j + 4];
+                temp[0][k] = MATRIX[i][j + 1];
+                temp[1][k++] = MATRIX[i][j + 5];
+                temp[0][k] = MATRIX[i][j + 2];
+                temp[1][k++] = MATRIX[i][j + 6];
+                temp[0][k] = MATRIX[i][j + 3];
+                temp[1][k++] = MATRIX[i++][j + 7];
+            }
             i = 0;
-            do
+            while (i < B.COL)
             {
-                multiply_kernel(temp.MATRIX, ta, B.MATRIX, j, i);
+                multiply_kernel(result.MATRIX, temp, B.MATRIX, j, i);
                 i += 4;
-            } while (i < B.COL);
+            }
             j += 8;
-        } while (j < ROW);
-        free(ta[0]);
-        free(ta[1]);
-        return temp;
+        }
+        free(temp[0]);
+        free(temp[1]);
+        return result;
     }
 };
 
