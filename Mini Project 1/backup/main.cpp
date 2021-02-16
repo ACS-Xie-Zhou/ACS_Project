@@ -11,7 +11,7 @@
 using namespace std;
 
 template <class T>
-class Mat{
+class alignas(32)Mat{
 private:
     size_t _row, _col;
     T **_mat;
@@ -125,25 +125,24 @@ public:
 
     Mat<float> operator*(const Mat<float> B){
         Mat<float> C(_row,B._col,0);
-        for(int i=0; i<_row; i++){
-            for(int k=0; k<_col; k++){
-                int j;
-                for(j=0; j<B._col; j+=8){
+        int i=0;
+        do{
+            int k=0;
+            do{
+                int j=0;
+                do{
                     __m256 scale= _mm256_set1_ps (_mat[i][k]);
                     __m256 B_row=_mm256_loadu_ps(&B._mat[k][j]);
                     __m256 product = _mm256_mul_ps(scale, B_row);
                     __m256 C_row=_mm256_loadu_ps(&C._mat[i][j]);
                     __m256 sum = _mm256_add_ps(product, C_row);
-                    float * p=new float[8];
-                    _mm256_storeu_ps (p, sum);
-                    for(int q=0;q<8&&q+j<B._col;q++){
-                        C._mat[i][q+j]=p[q];
-                    }
-                    delete p;
-                    //cout << "a" <<endl;
-                }
-            }
-        }
+                    _mm256_storeu_ps (&C._mat[i][j], sum);
+                    j+=8;
+                }while(j<B._col);
+                k++;
+            }while(k<_col);
+            i++;
+        }while(i<_row);
         return C;
     }
 
@@ -209,7 +208,7 @@ int main() {
     Mat<int> b(3,2,5);
     b.print();
     a.raw_mul(b).print();*/
-    /*
+
     Mat<int16_t> a;
     Mat<int16_t> b;
     read_to_mat("test.txt",a,b);
@@ -218,12 +217,12 @@ int main() {
     //a.raw_mul(b).print();
     Mat<int16_t> c = a*b;
     c.print();
-*/
+
     for(int i=1000;i<=5000;i+=1000){
-        Mat<int16_t> a(i,i,1);
-        Mat<int16_t> b(i,i,1);
+        Mat<float> a(i,i,1);
+        Mat<float> b(i,i,1);
         time_t start = clock();
-        Mat<int16_t> c=a*b;
+        Mat<float> c=a*b;
         time_t end = clock();
         cout << i << " " <<double(end -start)/CLOCKS_PER_SEC <<endl;
     }
