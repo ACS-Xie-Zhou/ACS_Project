@@ -6,6 +6,7 @@ The requirement of the mini project is to design a program which can utilize mul
 - [x] Put the file into the memory.
 - [x] Split the file into 4KB blocks.
 - [x] Send the file to different threads.
-- [ ] Compress the file block using zlib.
+- [x] Compress the file block using zlib.
 - [x] Receive the file from different threads in order.
 - [x] Write the file blocks into a new compressed file. 
+- [ ] (Optional) Write the decompress program.
