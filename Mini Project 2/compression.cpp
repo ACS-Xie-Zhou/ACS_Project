@@ -10,7 +10,7 @@
 #include <iomanip>
 #include <ctime>
 
-#define NUM_THREADS 16   // Define the number of threads.
+#define NUM_THREADS 8    // Define the number of threads.
 #define BUFFER_SIZE 4096 // Define the buffer size.
 typedef unsigned char BYTE;
 
@@ -46,15 +46,12 @@ void add_buffer_to_vector(std::vector<BYTE> &vector, const BYTE *buffer, uLongf 
         BYTE current_character = buffer[character_index];
         vector.push_back(current_character);
     }
-    //std::cout << "finished" << std::endl;
 }
 
 int compress_vector(std::vector<BYTE> source, std::vector<BYTE> &destination)
 {
     unsigned long source_length = source.size();
-    //unsigned long source_length = BUFFER_SIZE;
     uLongf destination_length = compressBound(source_length);
-    //uLongf destination_length = OUTPUT_SIZE;
 
     BYTE *destination_data = (BYTE *)malloc(destination_length);
     if (destination_data == nullptr)
@@ -70,30 +67,22 @@ int compress_vector(std::vector<BYTE> source, std::vector<BYTE> &destination)
     return return_value;
 }
 
-// int decompress_vector(std::vector<BYTE> source, std::vector<BYTE> &destination)
-// {
-//     std::cout << "begin decompress" << std::endl;
-//     unsigned long source_length = source.size();
-//     std::cout << "source.size = " << source_length << std::endl;
-//     uLongf destination_length = compressBound(source_length);
+int decompress_vector(std::vector<BYTE> source, std::vector<BYTE> &destination)
+{
+    unsigned long source_length = source.size();
+    uLongf destination_length = BUFFER_SIZE;
+    BYTE *destination_data = (BYTE *)malloc(destination_length);
+    if (destination_data == nullptr)
+    {
+        return Z_MEM_ERROR;
+    }
 
-//     BYTE *destination_data = (BYTE *)malloc(destination_length);
-
-//     if (destination_data == nullptr)
-//     {
-//         return Z_MEM_ERROR;
-//     }
-
-//     Bytef *source_data = (Bytef *)source.data();
-//     int return_value = uncompress((Bytef *)destination_data, &destination_length, source_data, source.size());
-//     add_buffer_to_vector(destination, destination_data, destination_length);
-//     free(destination_data);
-//     std::cout << "end decompress" << std::endl;
-//     std::cout << "source.size = " << source.size() << std::endl;
-//     std::cout << "dest.size = " << destination.size() << std::endl;
-//     std::cout << "ret = " << return_value << std::endl;
-//     return return_value;
-// }
+    Bytef *source_data = (Bytef *)source.data();
+    int return_value = uncompress((Bytef *)destination_data, &destination_length, source_data, source.size());
+    add_buffer_to_vector(destination, destination_data, destination_length);
+    free(destination_data);
+    return return_value;
+}
 
 void *block_compression(void *threadargs)
 {
@@ -109,84 +98,60 @@ void *block_compression(void *threadargs)
     pthread_exit(NULL);
 }
 
-// void *block_uncompression(void *threadargs)
-// {
-//     struct thread_data *data;
-//     data = (struct thread_data *)threadargs;
-//     long tid = (long)data->thread_id;
-//     std::vector<BYTE> input_file_segment = (std::vector<BYTE>)data->input_file_segment;
-//     std::vector<BYTE> result(0);
-//     int decompression_result = decompress_vector(input_file_segment, result);
-//     std::cout << decompression_result << std::endl;
+std::vector<BYTE> block_uncompression(std::vector<BYTE> input)
+{
+    std::vector<BYTE> result(0);
+    int decompression_result = decompress_vector(input, result);
+    //std::cout << decompression_result << std::endl;
 
-//     if (decompression_result == Z_BUF_ERROR)
-//     {
-//         std::cerr << "Buffer Error." << std::endl;
-//         exit(1);
-//     }
-//     if (decompression_result == Z_MEM_ERROR)
-//     {
-//         std::cerr << "MEM Error." << std::endl;
-//         exit(2);
-//     }
-//     if (decompression_result == Z_DATA_ERROR)
-//     {
-//         std::cerr << "Data Error." << std::endl;
-//         exit(3);
-//     }
-//     assert(decompression_result == F_OK);
-//     data->compressed_file_segment = result;
-//     pthread_exit(NULL);
-// }
+    if (decompression_result == Z_BUF_ERROR)
+    {
+        std::cerr << "Buffer Error." << std::endl;
+        exit(1);
+    }
+    if (decompression_result == Z_MEM_ERROR)
+    {
+        std::cerr << "MEM Error." << std::endl;
+        exit(2);
+    }
+    if (decompression_result == Z_DATA_ERROR)
+    {
+        std::cerr << "Data Error." << std::endl;
+        exit(3);
+    }
+    assert(decompression_result == F_OK);
+    return result;
+}
 
 int main(int argc, char *argv[])
 {
-    // if (argc != 4 || (argv[1] != std::string("-c") && argv[1] != std::string("-u")))
-    // {
-    //     // Ensure that the number of arguments is correct.
-    //     std::cerr << "./compression.out [-c/-u] [input] [output]"
-    //               << std::endl;
-    //     pthread_exit(NULL);
-    //     exit(0);
-    // }
-
-    // char *input_file_name = argv[2];
-    // std::cout << "input_file = " << input_file_name << std::endl;
-    // std::ifstream input_file(argv[2], std::ios::binary);
-    // if (input_file.good() == false)
-    // {
-    //     std::cerr << "Cannot open input_file" << std::endl;
-    //     exit(1);
-    // }
-    // std::vector<BYTE> input_file_data = read_file(argv[2]);
-    // remove(argv[3]); // Remove the output file from the directory.
-    // std::ofstream output_file(argv[3]);
-    if (argc != 3)
+    if (argc != 5 || (argv[1] != std::string("-c") && argv[1] != std::string("-u")))
     {
         // Ensure that the number of arguments is correct.
-        std::cerr << "./compression.out [input] [output]"
+        std::cerr << "./compression.out [-c/-u] [log] [input] [output]"
                   << std::endl;
         pthread_exit(NULL);
         exit(0);
     }
-
-    char *input_file_name = argv[1];
-    std::cout << "input_file = " << input_file_name << std::endl;
-    std::ifstream input_file(argv[1], std::ios::binary);
-    if (input_file.good() == false)
+    if (argv[1] == std::string("-c"))
     {
-        std::cerr << "Cannot open input_file" << std::endl;
-        exit(1);
-    }
-    std::vector<BYTE> input_file_data = read_file(argv[1]);
-    remove(argv[2]); // Remove the output file from the directory.
-    std::ofstream output_file(argv[2]);
-    std::cout << "output_file = " << argv[2] << std::endl;
+        char *input_file_name = argv[3];
+        std::cout << "input_file = " << input_file_name << std::endl;
+        std::ifstream input_file(argv[3], std::ios::binary);
+        if (input_file.good() == false)
+        {
+            std::cerr << "Cannot open input_file" << std::endl;
+            exit(1);
+        }
+        std::vector<BYTE> input_file_data = read_file(argv[3]);
+        remove(argv[4]); // Remove the output file from the directory.
+        std::ofstream output_file(argv[4]);
+        remove(argv[2]);
+        std::ofstream log(argv[2]);
+        std::cout << "output_file = " << argv[4] << std::endl;
 
-    if (true)
-    {
         // Compress mode.
-        std::cout << "compress mode: INPUT_FILE -> output_file" << std::endl;
+        std::cout << "compress mode: INPUT_FILE -> output_file + log_file" << std::endl;
         // Dispatch the segment to different threads.
         pthread_attr_t attr;
         pthread_attr_init(&attr);
@@ -264,110 +229,96 @@ int main(int argc, char *argv[])
                 i = thread_data_array[thread_num].compressed_file_segment.begin();
                 j = thread_data_array[thread_num].compressed_file_segment.end();
                 std::vector<BYTE> result(i, j);
-                //std::cout << result.size() << std::endl;
                 k = result.begin();
                 for (; k != result.end(); k++)
                 {
                     output_file << *k;
                 }
-                //output_file << thread_data_array[thread_num].compressed_file_segment;
-                //output_file << std::endl;
+                log << result.size() << std::endl;
             }
-            //output_file << "This is the end of file.";
         }
-        //
+        log.close();
+        input_file.close();
         output_file.close();
-        std::cout << "                                                                    \r"
-                  << std::flush;
-
+        // std::cout << "                                                                    \r"
+        //           << std::flush;
+        std::cout << std::endl;
         std::cout << "done" << std::endl;
         clock_t end = clock();
         double time_duration = static_cast<double>(end - start) / CLOCKS_PER_SEC;
         std::cout << "total_time = " << time_duration << "s" << std::endl;
     }
-    // else if (argv[1] == std::string("-u"))
-    // {
-    //     // Uncompress mode.
-    //     std::cout << "uncompress mode: input_file -> OUTPUT_FILE" << std::endl;
+    else if (argv[1] == std::string("-u"))
+    {
+        char *input_file_name = argv[3];
+        char *log_file_name = argv[2];
+        std::cout << "input_file = " << input_file_name << std::endl;
+        std::ifstream input_file(argv[3], std::ios::binary);
+        if (input_file.good() == false)
+        {
+            std::cerr << "Cannot open input_file" << std::endl;
+            exit(1);
+        }
+        std::vector<BYTE> input_file_data = read_file(argv[3]);
+        std::cout << "log_file = " << log_file_name << std::endl;
+        std::ifstream log(argv[2]);
+        remove(argv[4]); // Remove the output file from the directory.
+        std::ofstream output_file(argv[4]);
+        std::cout << "output_file = " << argv[4] << std::endl;
+        std::cout << "uncompress mode: input_file + log_file -> OUTPUT_FILE" << std::endl;
+        std::string one_line;
+        long thread_num = 0;
+        long long current_pos = 0;
+        bool flag = true;
 
-    //     pthread_attr_t attr;
-    //     pthread_attr_init(&attr);
-    //     pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE);
-    //     pthread_t threads[NUM_THREADS];
-    //     void *status;
+        while (flag)
+        {
+            long long length;
+            log >> length;
+            long long current_end = current_pos + length;
+            if (current_end >= input_file_data.size())
+            {
+                if (current_pos < input_file_data.size())
+                {
+                    current_end = input_file_data.size();
+                }
+                else
+                {
+                    break;
+                }
+                flag = false;
+            }
+            std::vector<BYTE>::iterator beg = input_file_data.begin() + current_pos;
+            std::vector<BYTE>::iterator end = input_file_data.begin() + current_pos + length;
+            std::cout << "process: "
+                      << std::setprecision(3)
+                      << float(current_end) / float(input_file_data.size()) * 100
+                      << "% completed | " 
+                      << current_pos << " - " << current_end 
+                      << "              \r" << std::flush;
 
-    //     std::string one_line;
-    //     long thread_num = 0;
-    //     bool flag = true;
-
-    //     while (flag)
-    //     {
-    //         flag = false;
-    //         while (getline(input_file, one_line))
-    //         {
-    //             if (one_line.compare("This is the end of file.") == 0)
-    //             {
-    //                 // End of file reached.
-    //                 break;
-    //             }
-    //             //std::cout << thread_num << ": " << one_line << std::endl;
-
-    //             std::vector<BYTE> buffer(one_line.begin(), one_line.end());
-    //             thread_data_array[thread_num].thread_id = thread_num;
-    //             thread_data_array[thread_num].input_file_segment = buffer;
-    //             int return_code = pthread_create(&threads[thread_num], &attr,
-    //                                              block_uncompression,
-    //                                              (void *)&thread_data_array[thread_num]);
-    //             if (return_code)
-    //             {
-    //                 std::cout << "ERROR: return code from pthread_create() is "
-    //                           << return_code << std::endl;
-    //                 exit(3);
-    //             }
-    //             flag = true;
-    //             if (thread_num < NUM_THREADS - 1)
-    //             {
-    //                 thread_num++;
-    //             }
-    //             else
-    //             {
-    //                 thread_num = NUM_THREADS;
-    //                 break;
-    //             }
-    //         }
-    //         //std::cout << "thread_num = " << thread_num << std::endl;
-    //         for (long i = 0; i < thread_num; i++)
-    //         {
-    //             //std::cout << "Recycled " << i << std::endl;
-    //             int return_code = pthread_join(threads[i], &status);
-    //             if (return_code)
-    //             {
-    //                 std::cout << "ERROR: return code from pthread_join() is "
-    //                           << return_code << std::endl;
-    //                 exit(4);
-    //             }
-    //         }
-    //         for (long i = 0; i < thread_num; i++)
-    //         {
-    //             std::vector<BYTE>::const_iterator beg, end, k;
-    //             beg = thread_data_array[i].compressed_file_segment.begin();
-    //             end = thread_data_array[i].compressed_file_segment.end();
-    //             std::vector<BYTE> result(beg, end);
-    //             k = result.begin();
-    //             for (; k != result.end(); k++)
-    //             {
-    //                 output_file << *k;
-    //             }
-    //             //output_file << std::endl;
-    //         }
-    //         thread_num = 0;
-    //     }
-    //     output_file.close();
-    // }
-    // else
-    // {
-    //     std::cout << "no operation" << std::endl;
-    // }
+            //std::cout << current_pos << " - " << current_end << std::endl;
+            std::vector<BYTE> buffer(beg, end);
+            std::vector<BYTE> result = block_uncompression(buffer);
+            std::vector<BYTE>::iterator k = result.begin();
+            for (; k != result.end(); k++)
+            {
+                output_file << *k;
+            }
+            current_pos = current_end;
+        }
+        std::cout << std::endl;
+        std::cout << "done" << std::endl;
+        std::cout << "output_file = " << argv[4] << std::endl;
+        log.close();
+        input_file.close();
+        output_file.close();
+    }
+    else
+    {
+        std::cout << "no operation" << std::endl;
+        exit(0);
+    }
     pthread_exit(NULL);
     return 0;
 }
