@@ -45,6 +45,12 @@ The code may be compiled on Windows operating system using Mingw's g++ program. 
 
 The code will then automatically run the multiplication on different sizes of matrices, from 1000×1000 to 10000×10000. For the optimized code, depending on the system performance, the multiplication of 10000×10000 matrix should take less than 500 seconds. For the traditional code, the multiplication of 10000×10000 matrix can take several hours.
 
+# Testing Configuration
+- CPU: Intel Core i7-10700KF
+- GPU: Nvidia Geforce 1660 Super
+- RAM: 64GB DDR4 Memory
+- OS:  Ubuntu 18.04 LTS in VirtualBox on Windows 10 Pro 64-bit
+
 # Results
 For the 2-byte fixed-point matrix multiplication, the results are shown below:
 | Matrix Size | Traditional (sec) | Optimized (sec)
