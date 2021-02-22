@@ -26,11 +26,11 @@ struct thread_data
     long thread_id;
     // The 4K block of the input file.
     std::vector<BYTE> input_file_segment;
-    // The compressed 4K block of the input file segment.
-    std::vector<BYTE> compressed_file_segment;
+    // The result 4K block of the input file segment.
+    std::vector<BYTE> result_file_segment;
 };
 
-// Enable the delivery of different data to different threads.
+// Enable the delivery of different data to and from different threads.
 struct thread_data thread_data_array[NUM_THREADS];
 
 // This function will read the file and convert the file into a vector
@@ -110,6 +110,8 @@ int compress_vector(std::vector<BYTE> source, std::vector<BYTE> &destination)
 
 // This function will decompress the vector using uncompress function.
 // Returns the ret from uncompress function.
+// source: the source vector containing the compressed data.
+// destination: the destination space to hold the uncompressed data.
 int decompress_vector(std::vector<BYTE> source, std::vector<BYTE> &destination)
 {
     // Because each decompressed block is at most 4KB in size, create buffer
@@ -156,7 +158,7 @@ void *block_compression(void *threadargs)
     assert(compression_result == F_OK);
 
     // Write the result vector back to thread_data.
-    data->compressed_file_segment = result;
+    data->result_file_segment = result;
     pthread_exit(NULL);
 }
 
@@ -323,18 +325,18 @@ int main(int argc, char *argv[])
             for (long thread_num = 0; thread_num < final; thread_num++)
             {
                 std::vector<BYTE>::const_iterator i, j, k;
-                i = thread_data_array[thread_num].compressed_file_segment.begin();
-                j = thread_data_array[thread_num].compressed_file_segment.end();
+                i = thread_data_array[thread_num].result_file_segment.begin();
+                j = thread_data_array[thread_num].result_file_segment.end();
                 std::vector<BYTE> result(i, j);
                 k = result.begin();
                 for (; k != result.end(); k++)
                 {
                     // Write the output_file with single character from the
-                    // compressed_file_segment.
+                    // result_file_segment.
                     output_file << *k;
                 }
 
-                // Write to the log_file the size of compressed_file_segment.
+                // Write to the log_file the size of result_file_segment.
                 log << result.size() << std::endl;
             }
         }
