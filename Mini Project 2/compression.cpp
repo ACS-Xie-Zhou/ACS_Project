@@ -40,7 +40,6 @@ std::vector<BYTE> read_file(const char *input_file_name)
 {
     std::streampos file_size;
     std::ifstream input_file(input_file_name, std::ios::binary);
-    std::vector<BYTE> file_data(file_size);
 
     // Get the file size.
     input_file.seekg(0, std::ios::end);
@@ -49,6 +48,7 @@ std::vector<BYTE> read_file(const char *input_file_name)
     input_file.seekg(0, std::ios::beg);
 
     // Read the file into the BYTE vector.
+    std::vector<BYTE> file_data(file_size);
     input_file.read((char *)&file_data[0], file_size);
 
     // Close the input_file stream to save resources.
