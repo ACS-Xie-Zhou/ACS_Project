@@ -63,7 +63,7 @@ This is the function used to decompress the input file. The input file is in the
 - CPU: Intel Core i7-10700KF
 - GPU: Nvidia Geforce 1660 Super
 - RAM: 64GB DDR4 Memory
-- OS:  Ubuntu 18.04 LTS in VirtualBox on Windows 10 Pro 64-bit
+- OS:  MSYS2 on Windows 10 Pro 64-bit
 - Input File: DataPC_ACD_Greece.forge (~10 GB) from Assassin's Creed Odyssey by Ubisoft.
 
 ## Testing Result
