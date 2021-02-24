@@ -15,23 +15,19 @@
 #include <iomanip>
 #include <ctime>
 
-#define NUM_THREADS 8       // Define the number of threads.
 #define BUFFER_SIZE 4096    // Define the buffer size.
 typedef unsigned char BYTE; // Define BYTE as unsigned char.
 
 // These variables will be assigned to different threads.
 struct thread_data
 {
-    // The thread id for each thread in the loop [0..NUM_THREADS-1].
+    // The thread id for each thread in the loop [0..num_threads-1].
     long thread_id;
     // The 4K block of the input file.
     std::vector<BYTE> input_file_segment;
     // The result 4K block of the input file segment.
     std::vector<BYTE> result_file_segment;
 };
-
-// Enable the delivery of different data to and from different threads.
-struct thread_data thread_data_array[NUM_THREADS];
 
 // This function will read the file and convert the file into a vector
 // of BYTE. Returns a std::vector<BYTE> of input file.
@@ -60,7 +56,7 @@ std::vector<BYTE> read_file(const char *input_file_name)
 // vector: the destination vector.
 // buffer: the input buffer.
 // length: the size of the input buffer.
-void add_buffer_to_vector(std::vector<BYTE> &vector,
+void buffer_vector_converter(std::vector<BYTE> &vector,
                           const BYTE *buffer,
                           uLongf length)
 {
@@ -94,16 +90,16 @@ int compress_vector(std::vector<BYTE> source, std::vector<BYTE> &destination)
 
     // Format the source data.
     Bytef *source_data = (Bytef *)source.data();
-    
+
     // Compress the source data using Z_BEST_COMPRESSION.
     int return_value = compress2((Bytef *)destination_data,
                                  &destination_length,
                                  source_data,
                                  source_length,
                                  Z_BEST_COMPRESSION);
-    
+
     // Write buffer to the destination std::vector<BYTE>.
-    add_buffer_to_vector(destination, destination_data, destination_length);
+    buffer_vector_converter(destination, destination_data, destination_length);
     free(destination_data);
     return return_value;
 }
@@ -118,7 +114,7 @@ int decompress_vector(std::vector<BYTE> source, std::vector<BYTE> &destination)
     // with 4KB memory space.
     uLongf destination_length = BUFFER_SIZE;
     BYTE *destination_data = (BYTE *)malloc(destination_length);
-    
+
     // If no memory space is allocated, return the error value.
     if (destination_data == nullptr)
     {
@@ -133,7 +129,7 @@ int decompress_vector(std::vector<BYTE> source, std::vector<BYTE> &destination)
                                   source.size());
 
     // Write buffer to the destination std::vector<BYTE>.
-    add_buffer_to_vector(destination, destination_data, destination_length);
+    buffer_vector_converter(destination, destination_data, destination_length);
     free(destination_data);
     return return_value;
 }
@@ -174,18 +170,18 @@ std::vector<BYTE> block_decompression(std::vector<BYTE> input)
     // Assert that the decompression process is correct.
     if (decompression_result == Z_BUF_ERROR)
     {
-        std::cerr << "Buffer Error." << std::endl;
-        exit(1);
+        std::cerr << "buffer error" << std::endl;
+        exit(2);
     }
     if (decompression_result == Z_MEM_ERROR)
     {
-        std::cerr << "MEM Error." << std::endl;
-        exit(2);
+        std::cerr << "mem error" << std::endl;
+        exit(3);
     }
     if (decompression_result == Z_DATA_ERROR)
     {
-        std::cerr << "Data Error." << std::endl;
-        exit(3);
+        std::cerr << "data error" << std::endl;
+        exit(4);
     }
     assert(decompression_result == F_OK);
     return result;
@@ -193,21 +189,18 @@ std::vector<BYTE> block_decompression(std::vector<BYTE> input)
 
 int main(int argc, char *argv[])
 {
-    // Check the input arguments.
-    if (argc != 5 ||
-        (argv[1] != std::string("-c") && argv[1] != std::string("-u")))
-    {
-        // If not correct, give user correct format and exit the program.
-        std::cerr << "./compression.out [-c/-u] [log] [input] [output]"
-                  << std::endl;
-        pthread_exit(NULL);
-        exit(0);
-    }
-
     // When compress mode.
-    if (argv[1] == std::string("-c"))
+    if (argc == 6 && argv[1] == std::string("-c"))
     {
-        std::cout << "NUM_THREADS = " << NUM_THREADS << std::endl;
+        long num_threads = std::atoi(argv[5]);
+        std::cout << "num_threads = " << num_threads << std::endl;
+        if (num_threads == 0)
+        {
+            std::cerr << "invalid number of threads" << std::endl;
+            exit(1);
+        }
+        // Enable the delivery of different data to and from different threads.
+        struct std::vector<thread_data> thread_data_array(num_threads);
         char *input_file_name = argv[3];
         std::cout << "input_file = " << input_file_name << std::endl;
         std::ifstream input_file(argv[3], std::ios::binary);
@@ -215,7 +208,7 @@ int main(int argc, char *argv[])
         // Check the input_file.
         if (input_file.good() == false)
         {
-            std::cerr << "Cannot open input_file" << std::endl;
+            std::cerr << "cannot open input_file" << std::endl;
             exit(1);
         }
 
@@ -234,9 +227,9 @@ int main(int argc, char *argv[])
         pthread_attr_t attr;
         pthread_attr_init(&attr);
         pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE);
-        pthread_t threads[NUM_THREADS];
+        pthread_t threads[num_threads];
         void *status;
-        long final = NUM_THREADS;
+        long final = num_threads;
         bool flag = true;
 
         // Current start position of iterator of input_file vector.
@@ -248,8 +241,8 @@ int main(int argc, char *argv[])
 
         while (flag)
         {
-            // Loop through [0..NUM_THREADS - 1].
-            for (long thread_num = 0; thread_num < NUM_THREADS; thread_num++)
+            // Loop through [0..num_threads - 1].
+            for (long thread_num = 0; thread_num < num_threads; thread_num++)
             {
                 // The case when the end position is larger than the file size.
                 if (current_upper_bound >= input_file_data.size())
@@ -306,7 +299,7 @@ int main(int argc, char *argv[])
                 current_upper_bound += BUFFER_SIZE;
             }
 
-            // Wait for NUM_THREADS threads to complete.
+            // Wait for num_threads threads to complete.
             for (long thread_num = 0; thread_num < final; thread_num++)
             {
                 // Use pthread_join to wait for one thread to finish.
@@ -315,9 +308,9 @@ int main(int argc, char *argv[])
                 // If the return_code is non-zero, end the program.
                 if (return_code)
                 {
-                    std::cout << "ERROR: return code from pthread_join() is "
+                    std::cerr << "ERROR: return code from pthread_join() is "
                               << return_code << std::endl;
-                    exit(4);
+                    exit(3);
                 }
             }
 
@@ -356,11 +349,11 @@ int main(int argc, char *argv[])
     }
     // When uncompress mode.
     // Uncompress mode will only use one thread to finish all the tasks.
-    else if (argv[1] == std::string("-u"))
+    else if (argc == 5 && argv[1] == std::string("-u"))
     {
         // Similar to the cpmpress mode, check the input_file, output_file and
         // log_file.
-        std::cout << "NUM_THREADS = 1" << std::endl;
+        std::cout << "num_threads = 1" << std::endl;
         char *input_file_name = argv[3];
         char *log_file_name = argv[2];
         std::cout << "input_file = " << input_file_name << std::endl;
@@ -453,8 +446,12 @@ int main(int argc, char *argv[])
     // Possible future features.
     else
     {
-        std::cout << "no operation" << std::endl;
-        exit(0);
+        std::cerr << "./compression.out [-c] [log] [input] [output] [number_threads]"
+                  << std::endl
+                  << "./compression.out [-u] [log] [input] [output]"
+                  << std::endl;
+        pthread_exit(NULL);
+        exit(1);
     }
     pthread_exit(NULL);
     return 0;
