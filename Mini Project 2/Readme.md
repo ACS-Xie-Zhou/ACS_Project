@@ -1,21 +1,22 @@
 # Introduction
-The requirement of the mini project is to design a program which can utilize multiple threads to accelerate the time required to compress a file. Because C/C++ does not have built-in support for multi-threaded application, pthread library from Linux is used to implement the application. As a result, this program can only run on Linux systems. Although with the use of msys2, this program can also be compiled and executed on Windows as well with no problem. 
+The requirement of the mini project is to design a program which can utilize multiple threads to accelerate the time required to compress a file. Because C/C++ does not have built-in support for multi-threaded application, pthread library from Linux is used to implement the application. As a result, this program can only run on Linux systems. Although with the use of MSYS2, this program can also be compiled and executed on Windows with no problem. 
 
 # Functions
 - Compress a file using multiple worker threads.
 - Decompress a file using one worker threads.
 
 # Usage
-This application can only run on Linux system. Windows operating system is not recommended as pthread library is not officially supported on Windows. 
-## Configure number of worker threads
-To change the number of threads the program will use for compression, change the last argument for the compression mode:  
-`./compression.out [-c] [log] [input] [output] [number_threads]`  
-with the number of threads needed. Please note that more threads will not necessarily make the program run faster.
+This application can run both on Linux and Windows. To run on Windows, MSYS2 is required with the pthread and zlib library installed. However, ***Windows operating system is not recommended*** as pthread library is not officially supported on Windows. 
 
 ## Compile
 To compile the source code, run  
 `g++ -pthread compression.cpp -o compression.out -lz`  
 in the terminal. Please ensure that pthread and zlib are available in the system.
+
+## Configure number of worker threads
+To change the number of threads the program will use for compression, change the last argument for the compression mode:  
+`./compression.out [-c] [log] [input] [output] [number_threads]`  
+with the number of threads needed. Please note that more threads will not necessarily make the program run faster.
 
 ## Execute
 To execute the compiled program, run  
