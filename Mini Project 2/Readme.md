@@ -1,12 +1,12 @@
 # Introduction
-The requirement of the mini project is to design a program which can utilize multiple threads to accelerate the time required to compress a file. Because C/C++ does not have built-in support for multi-threaded application, pthread library from Linux is used to implement the application. As a result, this program can only run on Linux systems. Although with the use of MSYS2, this program can also be compiled and executed on Windows with no problem. 
+The requirement of the mini project is to design a program which can utilize multiple threads to accelerate the time required to compress a file. Because C/C++ does not have built-in support for multi-threaded application, pthread library from Linux is used to implement the application. As a result, this program can only run on Linux systems.
 
 # Functions
 - Compress a file using multiple worker threads.
 - Decompress a file using one worker threads.
 
 # Usage
-This application can run both on Linux and Windows. To run on Windows, MSYS2 is required with the pthread and zlib library installed. However, ***Windows operating system is not recommended*** as pthread library is not officially supported on Windows. 
+This application can only run on Linux. pthread and zlib library are required.
 
 ## Compile
 To compile the source code, run  
@@ -62,9 +62,10 @@ This is the function used to decompress the input file. The input file is in the
 # Testing
 ## Testing Configuration
 - CPU: Intel Core i7-10700KF
-- GPU: Nvidia Geforce 1660 Super
+- GPU: Nvidia GeForce 1660 Super
 - RAM: 64GB DDR4 Memory
-- OS:  MSYS2 on Windows 10 Pro 64-bit
+- OS:  Ubuntu 18.04 LTS 64-bit
+- Disk: Crucial CT1000MX500SSD1
 - Input File: DataPC_ACD_Greece.forge (~10 GB) from Assassin's Creed Odyssey by Ubisoft.
 
 ## Testing Result
