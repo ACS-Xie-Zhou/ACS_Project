@@ -96,7 +96,7 @@ Large-Size-Column.txt | 184132 | 37	|./main.out -e Large-Size-Column.txt result_
 
 ![Encoding Results](./Picture1.svg)
 ### Query
-| File Name | String | Time (s) | Command | result |
+| File Name | String | Time (s) | Command | Result |
 |-----------|--------|----------|---------|--------|
 | result_1.txt | zlhwcbj | 1 | ./main.out -q result_1.txt zlhwcbj | zlhwcbj occurs 151 time(s) |
 | result_1.txt | hzdcf | 1 | ./main.out -q result_1.txt hzdcf | hzdcf occurs 101 time(s) |
