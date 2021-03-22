@@ -80,13 +80,13 @@ int main(int argc, char *argv[])
 {
     time_t start, end;
     start = time(NULL);
-    if (argc == 6 && argv[1] == std::string("-e"))
+    if (argc == 4 && argv[1] == std::string("-e"))
     {
         std::cout << "Encode Mode" << std::endl;
         char *input_file_name = argv[2];
-        char *output_file_name = argv[3];
-        char *dictionary_file_name = argv[4];
-        char *result_file_name = argv[5];
+        const char *output_file_name = "temp1";
+        const char *dictionary_file_name = "temp2";
+        char *result_file_name = argv[3];
 
         dict_container dict;
         std::ofstream output;
@@ -128,7 +128,7 @@ int main(int argc, char *argv[])
         remove(output_file_name);
         remove(dictionary_file_name);
 
-        std::cout << "Done." << std::endl;
+        std::cout << "Done" << std::endl;
         end = time(NULL);
         std::cout << "total_time = "
                   << difftime(end, start)
@@ -155,7 +155,7 @@ int main(int argc, char *argv[])
             }
             decoder[s1] = s2;
         }
-        std::cout << "Decoder Reconstructed." << std::endl;
+        std::cout << "Decoder Reconstructed" << std::endl;
         std::cout << "Please Wait..." << std::endl;
         decode_container::const_iterator itr;
         while (infile >> s1)
@@ -164,6 +164,7 @@ int main(int argc, char *argv[])
             output << itr->second << std::endl;
         }
         output.close();
+        std::cout << "Done" << std::endl;
         end = time(NULL);
         std::cout << "total_time = "
                   << difftime(end, start)
@@ -187,8 +188,9 @@ int main(int argc, char *argv[])
             }
             if (s1 == std::string(input_string))
             {
-                std::cout << input_string << " corresponds to " << s2 << "."
+                std::cout << input_string << " corresponds to " << s2
                           << std::endl;
+                std::cout << "Done" << std::endl;
                 end = time(NULL);
                 std::cout << "total_time = "
                           << difftime(end, start)
@@ -197,7 +199,8 @@ int main(int argc, char *argv[])
                 return 0;
             }
         }
-        std::cout << "Invalid Location ID." << std::endl;
+        std::cout << "Invalid Location ID" << std::endl;
+        std::cout << "Done" << std::endl;
         end = time(NULL);
         std::cout << "total_time = "
                   << difftime(end, start)
@@ -211,6 +214,7 @@ int main(int argc, char *argv[])
         char *input_string = argv[2];
         std::cout << input_string << " -> " << hash_function(input_string)
                   << std::endl;
+        std::cout << "Done" << std::endl;
         end = time(NULL);
         std::cout << "total_time = "
                   << difftime(end, start)
@@ -235,8 +239,9 @@ int main(int argc, char *argv[])
             }
             if (s1 == std::to_string(hash_val) && s2 == std::string(input_string))
             {
-                std::cout << input_string << " occurs " << s3 << " time(s)."
+                std::cout << input_string << " occurs " << s3 << " time(s)"
                           << std::endl;
+                std::cout << "Done" << std::endl;
                 end = time(NULL);
                 std::cout << "total_time = "
                           << difftime(end, start)
@@ -245,8 +250,9 @@ int main(int argc, char *argv[])
                 return 0;
             }
         }
-        std::cout << "Not Found." << std::endl;
+        std::cout << "Not Found" << std::endl;
         end = time(NULL);
+        std::cout << "Done" << std::endl;
         std::cout << "total_time = "
                   << difftime(end, start)
                   << "s"
@@ -255,7 +261,7 @@ int main(int argc, char *argv[])
 
     else
     {
-        std::cout << "Encode  ./main.out [-e] [original] [temp1] [temp2] [result]"
+        std::cout << "Encode  ./main.out [-e] [original] [result]"
                   << std::endl;
         std::cout << "Decode  ./main.out [-d] [result] [original]" << std::endl;
         std::cout << "Extract ./main.out [-x] [result] [ID]" << std::endl;
