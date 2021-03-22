@@ -66,6 +66,8 @@ in the terminal window.
 | Small-Size-Column.txt | 932 | 1 |./main.out -e Small-Size-Column.txt result_1.txt|
 Medium-Size-Column.txt | 9382 | 2 | ./main.out -e Medium-Size-Column.txt result_2.txt |
 Large-Size-Column.txt | 184132 | 37	|./main.out -e Large-Size-Column.txt result_3.txt|
+
+
 ![Encoding Results](./Picture1.svg)
 
 ### Query
@@ -80,6 +82,8 @@ Large-Size-Column.txt | 184132 | 37	|./main.out -e Large-Size-Column.txt result_
 |result_3.txt|vcaysmqt|1|./main.out -q result_3.txt vcaysmqt|vcaysmqt occurs 122 time(s)|
 |result_3.txt|wwyqldbstm|1|./main.out -q result_3.txt wwyqldbstm|wwyqldbstm occurs 118 time(s)|
 |result_3.txt|kraqojygid|1|./main.out -q result_3.txt kraqojygid|kraqojygid occurs 113 time(s)|
+
+
 ![Query Results](./Picture2.svg)
 
 
