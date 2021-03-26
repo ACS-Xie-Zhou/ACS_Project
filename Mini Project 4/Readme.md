@@ -90,28 +90,28 @@ The program will ask for the encoded data column and the raw data item. Then the
 ### Encoding
 | File Name | Size (KB) | Time (s) | Command |  
 |---|---|---|---|
-| Small-Size-Column.txt | 932 | 1 |./main.out -e Small-Size-Column.txt result_1.txt|
-Medium-Size-Column.txt | 9382 | 2 | ./main.out -e Medium-Size-Column.txt result_2.txt |
-Large-Size-Column.txt | 184132 | 37	|./main.out -e Large-Size-Column.txt result_3.txt|
+| Small-Size-Column.txt | 932 | 0.234 |./main.out -e Small-Size-Column.txt result_1.txt|
+Medium-Size-Column.txt | 9382 | 2.312 | ./main.out -e Medium-Size-Column.txt result_2.txt |
+Large-Size-Column.txt | 184132 | 48.906	|./main.out -e Large-Size-Column.txt result_3.txt|
 
 ![Encoding Results](./Picture1.svg)
 ### Query
 | File Name | String | Time (s) | Command | Result |
 |-----------|--------|----------|---------|--------|
-| result_1.txt | zlhwcbj | 1 | ./main.out -q result_1.txt zlhwcbj | zlhwcbj occurs 151 time(s) |
-| result_1.txt | hzdcf | 1 | ./main.out -q result_1.txt hzdcf | hzdcf occurs 101 time(s) |
-| result_1.txt | hfmy | 1 | ./main.out -q result_1.txt hfmy	|hfmy occurs 134 time(s) |
-|result_2.txt|ynryjgfjmm|1|./main.out -q result_2.txt ynryjgfjmm|ynryjgfjmm occurs 102 time(s)|
-|result_2.txt|fatkjwmku|1|./main.out -q result_2.txt fatkjwmku|fatkjwmku occurs 96 time(s)|
-|result_2.txt|	kvha |1|./main.out -q result_2.txt kvha|kvha occurs 241 time(s)|
-|result_3.txt|vcaysmqt|1|./main.out -q result_3.txt vcaysmqt|vcaysmqt occurs 122 time(s)|
-|result_3.txt|wwyqldbstm|1|./main.out -q result_3.txt wwyqldbstm|wwyqldbstm occurs 118 time(s)|
-|result_3.txt|kraqojygid|1|./main.out -q result_3.txt kraqojygid|kraqojygid occurs 113 time(s)|
+| result_1.txt | zlhwcbj | 0.001 | ./main.out -q result_1.txt zlhwcbj | zlhwcbj occurs 151 time(s) |
+| result_1.txt | hzdcf | 0.001 | ./main.out -q result_1.txt hzdcf | hzdcf occurs 101 time(s) |
+| result_1.txt | hfmy | 0.001 | ./main.out -q result_1.txt hfmy	|hfmy occurs 134 time(s) |
+|result_2.txt|ynryjgfjmm|0.001|./main.out -q result_2.txt ynryjgfjmm|ynryjgfjmm occurs 102 time(s)|
+|result_2.txt|fatkjwmku|0.001|./main.out -q result_2.txt fatkjwmku|fatkjwmku occurs 96 time(s)|
+|result_2.txt|	kvha |0.001|./main.out -q result_2.txt kvha|kvha occurs 241 time(s)|
+|result_3.txt|vcaysmqt|0.016|./main.out -q result_3.txt vcaysmqt|vcaysmqt occurs 122 time(s)|
+|result_3.txt|wwyqldbstm|0.031|./main.out -q result_3.txt wwyqldbstm|wwyqldbstm occurs 118 time(s)|
+|result_3.txt|kraqojygid|0.091|./main.out -q result_3.txt kraqojygid|kraqojygid occurs 113 time(s)|
 
 ![Query Results](./Picture2.svg)
 
 # Analysis
 In the encode mode, the program can create the dictionary and the encoded data column in O(N) time. This is because the program will scan the whole raw data column once. Because of the low cardinality of the data column, the dictionary only contains significantly low number of unique values. As a result, record the dictionary will take significantly shorter time.  
-In the query mode, the program can find the number of occurrences in O(1) time. This is because the number of occurrences are already recorded when the dictionary is created. Querying the dictionary with low cardinality is significantly faster than querying the whole encoded data column.
+In the query mode, the program can find the number of occurrences in linear time of the size of dictionary. This is because the number of occurrences are already recorded when the dictionary is created. The time to find the item in the dictionary depends on the position of the item in the dictionary. Querying the dictionary with low cardinality is significantly faster than querying the whole encoded data column.
 
 

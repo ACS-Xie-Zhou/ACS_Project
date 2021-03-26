@@ -88,8 +88,8 @@ void insert(const val_type &val, dict_container &dict,
 
 int main(int argc, char *argv[])
 {
-    time_t start, end;
-    start = time(NULL);
+    clock_t start, end;
+    start = clock();
     if (argc == 4 && argv[1] == std::string("-e"))
     {
         // Encode Mode.
@@ -144,10 +144,11 @@ int main(int argc, char *argv[])
         remove(dictionary_file_name);
 
         std::cout << "Done" << std::endl;
-        end = time(NULL);
+        end = clock();
+        double endtime = (double)(end - start) / CLOCKS_PER_SEC;
         std::cout << "total_time = "
-                  << difftime(end, start)
-                  << "s"
+                  << endtime * 1000
+                  << "ms"
                   << std::endl;
     }
 
@@ -186,10 +187,11 @@ int main(int argc, char *argv[])
         }
         output.close();
         std::cout << "Done" << std::endl;
-        end = time(NULL);
+        end = clock();
+        double endtime = (double)(end - start) / CLOCKS_PER_SEC;
         std::cout << "total_time = "
-                  << difftime(end, start)
-                  << "s"
+                  << endtime * 1000
+                  << "ms"
                   << std::endl;
     }
 
@@ -216,10 +218,11 @@ int main(int argc, char *argv[])
                 std::cout << input_string << " corresponds to " << s2
                           << std::endl;
                 std::cout << "Done" << std::endl;
-                end = time(NULL);
+                end = clock();
+                double endtime = (double)(end - start) / CLOCKS_PER_SEC;
                 std::cout << "total_time = "
-                          << difftime(end, start)
-                          << "s"
+                          << endtime * 1000
+                          << "ms"
                           << std::endl;
                 return 0;
             }
@@ -228,10 +231,11 @@ int main(int argc, char *argv[])
         // If not found, prompt the user.
         std::cout << "Invalid Location ID" << std::endl;
         std::cout << "Done" << std::endl;
-        end = time(NULL);
+        end = clock();
+        double endtime = (double)(end - start) / CLOCKS_PER_SEC;
         std::cout << "total_time = "
-                  << difftime(end, start)
-                  << "s"
+                  << endtime * 1000
+                  << "ms"
                   << std::endl;
     }
 
@@ -244,10 +248,11 @@ int main(int argc, char *argv[])
         std::cout << input_string << " -> " << hash_function(input_string)
                   << std::endl;
         std::cout << "Done" << std::endl;
-        end = time(NULL);
+        end = clock();
+        double endtime = (double)(end - start) / CLOCKS_PER_SEC;
         std::cout << "total_time = "
-                  << difftime(end, start)
-                  << "s"
+                  << endtime * 1000
+                  << "ms"
                   << std::endl;
     }
 
@@ -277,31 +282,33 @@ int main(int argc, char *argv[])
                 std::cout << input_string << " occurs " << s3 << " time(s)"
                           << std::endl;
                 std::cout << "Done" << std::endl;
-                end = time(NULL);
+                end = clock();
+                double endtime = (double)(end - start) / CLOCKS_PER_SEC;
                 std::cout << "total_time = "
-                          << difftime(end, start)
-                          << "s"
+                          << endtime * 1000
+                          << "ms"
                           << std::endl;
                 return 0;
             }
         }
         std::cout << "Not Found" << std::endl;
-        end = time(NULL);
         std::cout << "Done" << std::endl;
+        end = clock();
+        double endtime = (double)(end - start) / CLOCKS_PER_SEC;
         std::cout << "total_time = "
-                  << difftime(end, start)
-                  << "s"
+                  << endtime * 1000
+                  << "ms"
                   << std::endl;
     }
 
     else
     {
         // Additional info.
-        std::cout << "Encode  ./main.out [-e] [original] [result]"
+        std::cout << "Encode  ./main.out -e [original] [result]"
                   << std::endl;
-        std::cout << "Decode  ./main.out [-d] [result] [original]" << std::endl;
-        std::cout << "Extract ./main.out [-x] [result] [ID]" << std::endl;
-        std::cout << "Hash    ./main.out [-h] [value]" << std::endl;
-        std::cout << "Query   ./main.out [-q] [result] [value]" << std::endl;
+        std::cout << "Decode  ./main.out -d [result] [original]" << std::endl;
+        std::cout << "Extract ./main.out -x [result] [ID]" << std::endl;
+        std::cout << "Hash    ./main.out -h [value]" << std::endl;
+        std::cout << "Query   ./main.out -q [result] [value]" << std::endl;
     }
 }
