@@ -48,5 +48,5 @@ After the *.tbl data files are generated, they are imported into the tables of t
 ~~22~~|~~Global Sales Opportunity~~|~~1.629~~|~~N/A~~|
 
 It is worth noting that for query 17 and 20, both database cannot complete the query in 15 minutes. For query 22, SQLite cannot complete the query in 15 minutes. As a result, query 17, 20, and 22 are not considered in final performance comparison.
-![Tux, the Linux mascot](Picture1.jpg)
+![Tux, the Linux mascot](Picture1.svg)
 
