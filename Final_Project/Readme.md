@@ -29,7 +29,7 @@ TPC-H is a decision support benchmark. It consists of a suite of business orient
 # Database Description
 First a new database is created for both PostgreSQL and SQLite. Then, we use TPC-H to generate test data. The size of the data is about 1GB using a scale factor of 1. The data are separated in 8 different tables.
 
-|Table Name|Number of Entries|
+|Table Name|Number of Tuples|
 |----|----|
 |region|5|
 |nation|25|
@@ -103,12 +103,17 @@ The time for each query are also recorded using time command of Linux.
 ~~20~~|~~Potential Part Promotion~~|~~N/A~~|~~N/A~~|
 21|Supplier Who Kept Orders Waiting|4.761|30.657|
 ~~22~~|~~Global Sales Opportunity~~|~~1.629~~|~~N/A~~|
+| |Average|15.30410526|19.28615263|
+| |Standard Deviation|12.45593892|25.74306548|
+
 
 It is worth noting that for query 17 and 20, both database cannot complete the query in 15 minutes. For query 22, SQLite cannot complete the query in 15 minutes. As a result, query 17, 20, and 22 are not considered in final performance comparison.
 ![Time Comparison](Picture1.svg)
 
 # Conclusion
-
+PostgreSQL will fork a new process each time a new client is connected. As a result, for simple read-heavy operations, such as the TPC-H test queries, PostgreSQL is worse in performance than other RDMBSs.  However, PostgreSQL has been fill ACID-compliant since 2001 and it implements multi-version currency control to ensure that data remains consistent.  
+SQLite3 uses a serverless approach. Any process that accesses the database reads from and writes to the database disk file directly. As a result, there is no need to configure a server process like PostgreSQL. The whole database is stored as a separate file and can be located anywhere in the system. It can also be shared to other systems seamlessly.  
+From the testing result, we can find that on average, PostgreSQL spends 4 seconds less than that of SQLite3. Also, the standard deviation is much smaller for PostgreSQL than for SQLite3. This indicates that PostgreSQL has a better overall performance compared to SQLite3. This can be caused by the slow disk read/write performance. For Raspberry Pi, the micro-sd cards are used as the storage devices. The best micro-sd cards on the market can provide 100MB/s read and write speed. This is equivalent to the speed of HDD drives. Modern data centers can use better storage devices, such as NVMe drives and RAID to improve the speed of the storage devices. As a result, when using better storage devices, the performance for SQLite3 can be improved.
 
 # Reference
 [TPC-H Database for SQLite](https://github.com/lovasoa/TPCH-sqlite)  
