@@ -3,7 +3,7 @@ Compare the performance of PostgreSQL and SQLite on Raspberry Pi 4B 2GB RAM vers
 Yutong Xie: SQLite  
 Yilu Zhou: PostgreSQL
 
-# Database Benchmark Tool: TPC-H  
+# Database Benchmark Tool: TPC-H v2.18.0
 TPC-H is a decision support benchmark. It consists of a suite of business oriented ad-hoc queries and concurrent data modifications. The queries and the data populating the database have been chosen to have broad industry-wide relevance while maintaining a sufficient degree of ease of implementation. This benchmark illustrates decision support systems that 
 - Examine large volumes of data;
 - Execute queries with a high degree of complexity;
