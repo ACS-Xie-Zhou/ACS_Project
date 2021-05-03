@@ -4,7 +4,11 @@ Yutong Xie: SQLite
 Yilu Zhou: PostgreSQL
 
 # Database Benchmark Tool: TPC-H  
-TPC-H is a decision support benchmark. It consists of a suite of business oriented ad-hoc queries and concurrent data modifications. The queries and the data populating the database have been chosen to have broad industry-wide relevance.
+TPC-H is a decision support benchmark. It consists of a suite of business oriented ad-hoc queries and concurrent data modifications. The queries and the data populating the database have been chosen to have broad industry-wide relevance while maintaining a sufficient degree of ease of implementation. This benchmark illustrates decision support systems that 
+- Examine large volumes of data;
+- Execute queries with a high degree of complexity;
+- Give answers to critical business questions.
+
 
 # Testing Device: Raspberry Pi 4B with 2GB RAM  
 - Broadcom BCM2711, Quad core Cortex-A72 (ARM v8) 64-bit SoC @ 1.5GHz.
@@ -25,6 +29,15 @@ TPC-H is a decision support benchmark. It consists of a suite of business orient
 - ACID-compliant and implements most of the SQL standard, generally following PostgreSQL syntax.
 - A popular choice as embedded database software for local/client storage in application software such as web browsers. 
 - Version: 3.35.5.
+
+## Comparison
+| | SQLite|PostgreSQL|
+|-|-------|-----------|
+|Library | <600 KB | Much larger than SQLite|
+|Architecture | File based, Embedded|Client/Server|
+|Data Size Limitation|<140 TB | Unlimited|
+|Security and Authentication | No authentication system (3rd party extension exists)|A lot of security features|
+|Transactional consistency| ACID | Strong ACID|
 
 # Database Description
 First a new database is created for both PostgreSQL and SQLite. Then, we use TPC-H to generate test data. The size of the data is about 1GB using a scale factor of 1. The data are separated in 8 different tables.
@@ -112,8 +125,9 @@ It is worth noting that for query 17 and 20, both database cannot complete the q
 
 # Conclusion
 PostgreSQL will fork a new process each time a new client is connected. As a result, for simple read-heavy operations, such as the TPC-H test queries, PostgreSQL is worse in performance than other RDMBSs.  However, PostgreSQL has been fill ACID-compliant since 2001 and it implements multi-version currency control to ensure that data remains consistent.  
-SQLite3 uses a serverless approach. Any process that accesses the database reads from and writes to the database disk file directly. As a result, there is no need to configure a server process like PostgreSQL. The whole database is stored as a separate file and can be located anywhere in the system. It can also be shared to other systems seamlessly.  
+SQLite3 uses a serverless approach. Any process that accesses the database reads from and writes to the database disk file directly. As a result, there is no need to configure a server process like PostgreSQL. The whole database is stored as a separate file and can be located anywhere in the system. It can also be shared to other systems seamlessly. SQLite implements serializable transactions that are ACID, even if the transaction is interrupted by a program crash, an operating system crash, or a power failure to the computer. However, although the concurrency performance is not evaluated in this test, it is predictable that SQLite has worth high concurrency performance comparing to PostgreSQL due to its serial handling of writes operations.
 From the testing result, we can find that on average, PostgreSQL spends 4 seconds less than that of SQLite3. Also, the standard deviation is much smaller for PostgreSQL than for SQLite3. This indicates that PostgreSQL has a better overall performance compared to SQLite3. This can be caused by the slow disk read/write performance. For Raspberry Pi, the micro-sd cards are used as the storage devices. The best micro-sd cards on the market can provide 100MB/s read and write speed. This is equivalent to the speed of HDD drives. Modern data centers can use better storage devices, such as NVMe drives and RAID to improve the speed of the storage devices. As a result, when using better storage devices, the performance for SQLite3 can be improved.
+To summarize,  SQLite is a good choice for small apps that do not require expansion, while PostgreSQL is suitable for applications requiring better high concurrency performance and reliability.
 
 # Reference
 [TPC-H Database for SQLite](https://github.com/lovasoa/TPCH-sqlite)  
