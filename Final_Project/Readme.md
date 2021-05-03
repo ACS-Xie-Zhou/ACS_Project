@@ -20,12 +20,12 @@ TPC-H is a decision support benchmark. It consists of a suite of business orient
 # Testing Database
 ## PostgreSQL
 - A free and open-source relational database management system emphasizing extensibility and SQL compliance.
-- Transactions with Atomicity, Consistency, Isolation, Durability (ACID) to guarantee data validity despite errors, power failures.
+- Transactions with Atomicity, Consistency, Isolation, Durability (ACID) to guarantee data validity despite errors and power failures.
 - Evolved from the Ingres project at the University of California, Berkeley.
 - Version: 13.2.
 
 ## SQLite3
-- Not a client–server database engine.
+- Embedded database: not a client–server database engine.
 - ACID-compliant and implements most of the SQL standard, generally following PostgreSQL syntax.
 - A popular choice as embedded database software for local/client storage in application software such as web browsers. 
 - Version: 3.35.5.
